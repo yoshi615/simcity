@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Set initial map's style configuration property</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.9.2/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.9.2/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoieW9zaGk2MTUiLCJhIjoiY20zNWxsaTYyMGFkNTJrcTVramFrNGFlciJ9.IyVbSb6S6nu8fmBRxdjUHA';
+    const map = new mapboxgl.Map({
+        container: 'map',
+        zoom: 16.2,
+        pitch: 75,
+        bearing: -170,
+        center: [139.9760019281628,35.8688194923926],
+        style: 'mapbox://styles/mapbox/standard', // Use the Mapbox Standard style
+        config: {
+            // Initial configuration for the Mapbox Standard style set above. By default, its ID is `basemap`.
+            basemap: {
+                // Here, we're disabling all of the 3D layers such as landmarks, trees, and 3D extrusions.
+                show3dObjects: true,
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
