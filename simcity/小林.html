@@ -1,1 +1,72 @@
+import plotly.graph_objects as go
+import numpy as np
+
+# ランドアバウトの中心を定義
+center_x, center_y = 0, 0
+radius = 10  # ランドアバウトの半径
+
+# ランドアバウトを作成（円形）
+theta = np.linspace(0, 2 * np.pi, 100)
+x = center_x + radius * np.cos(theta)
+y = center_y + radius * np.sin(theta)
+z = np.zeros_like(x)  # 地面レベル
+
+# ランドアバウト周辺に建物（簡単な立方体）を配置
+num_buildings = 8  # 建物の数
+building_radius = radius + 2  # 建物が配置される円の半径
+building_height = 5  # 建物の高さ
+building_x = building_radius * np.cos(np.linspace(0, 2 * np.pi, num_buildings))
+building_y = building_radius * np.sin(np.linspace(0, 2 * np.pi, num_buildings))
+building_z = np.zeros_like(building_x)
+
+# 立方体の各頂点の座標
+building_length = 2  # 建物の一辺の長さ
+building_vertices = []
+
+for i in range(num_buildings):
+    x0, y0 = building_x[i], building_y[i]
+    z0 = building_z[i]
+    
+    # 立方体の4つの角を作成（下半分）
+    for dx in [-building_length/2, building_length/2]:
+        for dy in [-building_length/2, building_length/2]:
+            building_vertices.append([x0 + dx, y0 + dy, z0])
+    
+    # 上半分の高さを追加
+    for dx in [-building_length/2, building_length/2]:
+        for dy in [-building_length/2, building_length/2]:
+            building_vertices.append([x0 + dx, y0 + dy, z0 + building_height])
+
+# 3Dプロットの設定
+fig = go.Figure()
+
+# ランドアバウト（円形）の追加
+fig.add_trace(go.Scatter3d(
+    x=x, y=y, z=z, mode='lines', line=dict(color='green', width=5), name='ランドアバウト'
+))
+
+# 建物（立方体）の追加
+for i in range(0, len(building_vertices), 8):
+    vertices = building_vertices[i:i+8]
+    x_coords = [v[0] for v in vertices]
+    y_coords = [v[1] for v in vertices]
+    z_coords = [v[2] for v in vertices]
+    
+    fig.add_trace(go.Mesh3d(
+        x=x_coords, y=y_coords, z=z_coords, opacity=0.5, color='blue'
+    ))
+
+# レイアウトの調整
+fig.update_layout(
+    scene=dict(
+        xaxis=dict(title='X'),
+        yaxis=dict(title='Y'),
+        zaxis=dict(title='Z')
+    ),
+    title='ランドアバウトを中心にした3D都市マップ',
+    showlegend=False
+)
+
+# 表示
+fig.show()
 
