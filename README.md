@@ -1,1 +1,1 @@
-# simcity
+This SimCity project is being conducted as a practical exercise for the Reitaku-Style Engineer course at Reitaku University.
