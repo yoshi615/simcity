@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Set initial map's style configuration property</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.9.2/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.9.2/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoieW9zaGk2MTUiLCJhIjoiY20zNWxsaTYyMGFkNTJrcTVramFrNGFlciJ9.IyVbSb6S6nu8fmBRxdjUHA';
+    const map = new mapboxgl.Map({
+        container: 'map',
+        zoom: 16.2,
+        pitch: 75,
+        bearing: -170,
+        center: [140.81495081251722,37.33146953173648],
+        style: 'mapbox://styles/mapbox/standard', // Use the Mapbox Standard style
+        config: {
+            // Initial configuration for the Mapbox Standard style set above. By default, its ID is `basemap`.
+            basemap: {
+                // Here, we're disabling all of the 3D layers such as landmarks, trees, and 3D extrusions.
+                show3dObjects: true,
+            }
+        }
+    });
+
+map.on('load', function () {
+    map.addSource('terrain', {
+        'type': 'raster-dem',
+        'url': 'mapbox://mapbox.terrain-rgb'
+    });
+
+    map.setTerrain({ 'source': 'terrain', 'exaggeration': 1.5 });
+
+    map.addLayer({
+        'id': 'terrain-data',
+        'type': 'hillshade',
+        'source': 'terrain',
+        'layout': {},
+        'paint': {
+            'hillshade-exaggeration': 0.5
+        }
+    });
+});
+
+map.on('load', function () {
+    const route = {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'LineString',
+            'coordinates': [
+                [140.65942846626652, 37.324498108213916], // 神俣駅
+                [140.71495056152344, 37.328125], // Intermediate point to avoid elevation
+                [140.75994590487296, 37.324262673222336], // Intermediate point to avoid elevation
+                [140.80228086224432, 37.33590904891553]  // Destination
+            ]
+        }
+    };
+
+    map.addLayer({
+        'id': 'route',
+        'type': 'line',
+        'source': {
+            'type': 'geojson',
+            'data': route
+        },
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': '#FF0000',
+            'line-width': 4
+        }
+    });
+});
+
+function generateRandomPolygon(center, hectares) {
+    const radius = Math.sqrt(hectares * 10000 / Math.PI);
+    const points = [];
+    const numPoints = 6 + Math.floor(Math.random() * 5); // Random number of points between 6 and 10
+
+    for (let i = 0; i < numPoints; i++) {
+        const angle = (i / numPoints) * (2 * Math.PI);
+        const offsetX = radius * Math.cos(angle) * (0.8 + Math.random() * 0.4);
+        const offsetY = radius * Math.sin(angle) * (0.8 + Math.random() * 0.4);
+        points.push([center[0] + offsetX / 111320, center[1] + offsetY / 111320]);
+    }
+
+    points.push(points[0]); // Close the polygon
+    return points;
+}
+
+const center = [140.78764546576733, 37.35355750461364]; // Updated coordinates
+const hectares = 8.5;
+const polygonCoordinates = generateRandomPolygon(center, hectares);
+
+const polygon = {
+    'type': 'Feature',
+    'geometry': {
+        'type': 'Polygon',
+        'coordinates': [polygonCoordinates]
+    }
+};
+
+map.on('load', function () {
+    map.addLayer({
+        'id': 'random-polygon',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': polygon
+        },
+        'layout': {},
+        'paint': {
+            'fill-color': '#FF0000',
+            'fill-opacity': 0.5
+        }
+    });
+});
+
+</script>
+
+</body>
+</html>
